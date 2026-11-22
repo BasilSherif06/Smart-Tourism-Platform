@@ -4,6 +4,7 @@ from alembic import context
 
 from src.database.base import Base
 from src.database.connection import engine, DATABASE_URL
+import src.models  # noqa: F401
 
 # Alembic configuration
 config = context.config
