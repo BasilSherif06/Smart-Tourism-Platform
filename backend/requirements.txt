@@ -1,0 +1,15 @@
+# Web Framework
+fastapi
+uvicorn[standard]
+
+# Database
+sqlalchemy
+psycopg2-binary
+alembic
+
+# Environment Variables & Configuration
+python-dotenv
+pydantic-settings
+
+# Validation
+pydantic
