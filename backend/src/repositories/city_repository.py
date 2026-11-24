@@ -1,4 +1,3 @@
-from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -21,10 +20,7 @@ def create_city(db: Session, city: CityCreate):
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="A city with this name already exists"
-        )
+        raise
 
     db.refresh(db_city)
 
@@ -32,11 +28,19 @@ def create_city(db: Session, city: CityCreate):
 
 
 def get_cities(db: Session):
-    return db.query(City).order_by(City.city_id).all()
+    return (
+        db.query(City)
+        .order_by(City.city_id)
+        .all()
+    )
 
 
 def get_city_by_id(db: Session, city_id: int):
-    return db.query(City).filter(City.city_id == city_id).first()
+    return (
+        db.query(City)
+        .filter(City.city_id == city_id)
+        .first()
+    )
 
 
 def update_city(db: Session, city_id: int, city: CityCreate):
@@ -55,10 +59,7 @@ def update_city(db: Session, city_id: int, city: CityCreate):
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="A city with this name already exists"
-        )
+        raise
 
     db.refresh(db_city)
 
@@ -77,9 +78,6 @@ def delete_city(db: Session, city_id: int):
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="City is used by other records and cannot be deleted"
-        )
+        raise
 
     return db_city
