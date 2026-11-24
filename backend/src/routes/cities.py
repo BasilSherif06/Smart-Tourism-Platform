@@ -3,13 +3,7 @@ from sqlalchemy.orm import Session
 
 from src.database.connection import get_db
 from src.schemas.city import CityCreate, CityResponse
-from src.controllers.city_controller import (
-    create_city,
-    get_cities,
-    get_city_by_id,
-    update_city,
-    delete_city
-)
+from src.services import city_service
 
 
 router = APIRouter(
@@ -27,7 +21,7 @@ def create_city_endpoint(
     city: CityCreate,
     db: Session = Depends(get_db)
 ):
-    return create_city(db, city)
+    return city_service.create_city(db, city)
 
 
 @router.get(
@@ -37,7 +31,7 @@ def create_city_endpoint(
 def get_cities_endpoint(
     db: Session = Depends(get_db)
 ):
-    return get_cities(db)
+    return city_service.get_cities(db)
 
 
 @router.get(
@@ -48,7 +42,7 @@ def get_city_endpoint(
     city_id: int,
     db: Session = Depends(get_db)
 ):
-    db_city = get_city_by_id(db, city_id)
+    db_city = city_service.get_city_by_id(db, city_id)
 
     if db_city is None:
         raise HTTPException(
@@ -68,7 +62,7 @@ def update_city_endpoint(
     city: CityCreate,
     db: Session = Depends(get_db)
 ):
-    db_city = update_city(db, city_id, city)
+    db_city = city_service.update_city(db, city_id, city)
 
     if db_city is None:
         raise HTTPException(
@@ -87,7 +81,7 @@ def delete_city_endpoint(
     city_id: int,
     db: Session = Depends(get_db)
 ):
-    db_city = delete_city(db, city_id)
+    db_city = city_service.delete_city(db, city_id)
 
     if db_city is None:
         raise HTTPException(
