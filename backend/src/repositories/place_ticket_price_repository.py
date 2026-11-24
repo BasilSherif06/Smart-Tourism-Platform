@@ -1,5 +1,3 @@
-from datetime import datetime, timezone
-
 from sqlalchemy.orm import Session
 
 from src.models.place_ticket_price import PlaceTicketPrice
@@ -28,18 +26,19 @@ def create_ticket_price(
 
 
 def get_ticket_prices_by_place(db: Session, place_id: int):
-    return (
+    return(
         db.query(PlaceTicketPrice)
-        .filter(PlaceTicketPrice.place_id == place_id)
+        .filter(PlaceTicketPrice.place_id==place_id)
         .all()
     )
 
 
 def get_ticket_price_by_id(db: Session, ticket_price_id: int):
-    return db.query(PlaceTicketPrice).filter(
-        PlaceTicketPrice.ticket_price_id == ticket_price_id
-    ).first()
-
+    return(
+        db.query(PlaceTicketPrice)
+        .filter(PlaceTicketPrice.ticket_price_id==ticket_price_id)
+        .first()
+    )
 
 def update_ticket_price(
     db: Session,

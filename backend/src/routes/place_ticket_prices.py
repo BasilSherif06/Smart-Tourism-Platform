@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from src.database.connection import get_db
@@ -6,16 +6,7 @@ from src.schemas.place_ticket_price import (
     PlaceTicketPriceCreate,
     PlaceTicketPriceResponse
 )
-from src.controllers.place_ticket_price_controller import create_ticket_price
-
-from src.controllers.place_ticket_price_controller import (
-    create_ticket_price,
-    get_ticket_prices_by_place,
-    get_ticket_price_by_id,
-    update_ticket_price,
-    delete_ticket_price
-)
-from fastapi import APIRouter, Depends, HTTPException, status
+from src.services import place_ticket_price_service
 
 
 router = APIRouter(
@@ -34,8 +25,9 @@ def create_ticket_price_endpoint(
     ticket_price: PlaceTicketPriceCreate,
     db: Session = Depends(get_db)
 ):
-    return create_ticket_price(db, place_id, ticket_price)
-
+    return place_ticket_price_service.create_ticket_price(
+        db, place_id, ticket_price
+    )
 
 
 @router.get(
@@ -46,8 +38,9 @@ def get_ticket_prices_endpoint(
     place_id: int,
     db: Session = Depends(get_db)
 ):
-    return get_ticket_prices_by_place(db, place_id)
-
+    return place_ticket_price_service.get_ticket_prices_by_place(
+        db, place_id
+    )
 
 
 @router.get(
@@ -58,16 +51,17 @@ def get_ticket_price_endpoint(
     ticket_price_id: int,
     db: Session = Depends(get_db)
 ):
-    db_ticket_price = get_ticket_price_by_id(db, ticket_price_id)
+    db_ticket_price = place_ticket_price_service.get_ticket_price_by_id(
+        db, ticket_price_id
+    )
 
     if db_ticket_price is None:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Ticket price not found"
         )
 
     return db_ticket_price
-
 
 
 @router.put(
@@ -79,20 +73,17 @@ def update_ticket_price_endpoint(
     ticket_price: PlaceTicketPriceCreate,
     db: Session = Depends(get_db)
 ):
-    db_ticket_price = update_ticket_price(
-        db,
-        ticket_price_id,
-        ticket_price
+    db_ticket_price = place_ticket_price_service.update_ticket_price(
+        db, ticket_price_id, ticket_price
     )
 
     if db_ticket_price is None:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Ticket price not found"
         )
 
     return db_ticket_price
-
 
 
 @router.delete(
@@ -103,10 +94,12 @@ def delete_ticket_price_endpoint(
     ticket_price_id: int,
     db: Session = Depends(get_db)
 ):
-    db_ticket_price = delete_ticket_price(db, ticket_price_id)
+    db_ticket_price = place_ticket_price_service.delete_ticket_price(
+        db, ticket_price_id
+    )
 
     if db_ticket_price is None:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Ticket price not found"
         )
