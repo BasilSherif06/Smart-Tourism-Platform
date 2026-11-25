@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
@@ -11,15 +12,13 @@ class PlaceCreate(BaseModel):
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
     address: Optional[str] = None
-    category: Optional[str] = Field(default=None, max_length=100)
+    category: str = Field(min_length=1, max_length=100)
     opening_hours: Optional[dict] = None
     rating: Optional[Decimal] = Field(default=None, ge=0, le=5, decimal_places=1)
-    good_for_children: bool = False
-    good_for_groups: bool = False
+    good_for_children: Optional[bool] = None
+    good_for_groups: Optional[bool] = None
     website_url: Optional[HttpUrl] = None
-    estimated_duration_minutes: Optional[int] = Field(default=None, gt=0)
-    indoor_outdoor: Optional[str] = Field(default=None, max_length=20)
-    weather_sensitivity: Optional[str] = Field(default=None, max_length=20)
+    last_synced_at: Optional[datetime] = None
 
 
 class PlaceResponse(BaseModel):
@@ -32,12 +31,10 @@ class PlaceResponse(BaseModel):
     latitude: float
     longitude: float
     address: Optional[str]
-    category: Optional[str]
+    category: str
     opening_hours: Optional[dict]
     rating: Optional[Decimal]
-    good_for_children: bool
-    good_for_groups: bool
+    good_for_children: Optional[bool]
+    good_for_groups: Optional[bool]
     website_url: Optional[str]
-    estimated_duration_minutes: Optional[int]
-    indoor_outdoor: Optional[str]
-    weather_sensitivity: Optional[str]
+    last_synced_at: Optional[datetime]
