@@ -1,20 +1,11 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from src.controllers.place_controller import (
-    create_place,
-    delete_place,
-    get_city_by_id,
-    get_place_by_google_place_id,
-    get_place_by_id,
-    get_places,
-    update_place,
-)
 from src.database.connection import get_db
 from src.schemas.place import PlaceCreate, PlaceResponse
+from src.services import place_service
 
 
 router = APIRouter(
@@ -32,19 +23,7 @@ def create_place_endpoint(
     place: PlaceCreate,
     db: Session = Depends(get_db)
 ):
-    if get_city_by_id(db, place.city_id) is None:
-        raise HTTPException(
-            status_code=404,
-            detail="City not found"
-        )
-
-    if get_place_by_google_place_id(db, place.google_place_id) is not None:
-        raise HTTPException(
-            status_code=409,
-            detail="A place with this google_place_id already exists"
-        )
-
-    return create_place(db, place)
+    return place_service.create_place(db, place)
 
 
 @router.get(
@@ -53,9 +32,10 @@ def create_place_endpoint(
 )
 def get_places_endpoint(
     city_id: Optional[int] = None,
+    category: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
-    return get_places(db, city_id)
+    return place_service.get_places(db, city_id, category)
 
 
 @router.get(
@@ -66,11 +46,11 @@ def get_place_endpoint(
     place_id: int,
     db: Session = Depends(get_db)
 ):
-    db_place = get_place_by_id(db, place_id)
+    db_place = place_service.get_place_by_id(db, place_id)
 
     if db_place is None:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Place not found"
         )
 
@@ -86,27 +66,15 @@ def update_place_endpoint(
     place: PlaceCreate,
     db: Session = Depends(get_db)
 ):
-    if get_place_by_id(db, place_id) is None:
+    db_place = place_service.update_place(db, place_id, place)
+
+    if db_place is None:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Place not found"
         )
 
-    if get_city_by_id(db, place.city_id) is None:
-        raise HTTPException(
-            status_code=404,
-            detail="City not found"
-        )
-
-    existing = get_place_by_google_place_id(db, place.google_place_id)
-
-    if existing is not None and existing.place_id != place_id:
-        raise HTTPException(
-            status_code=409,
-            detail="A place with this google_place_id already exists"
-        )
-
-    return update_place(db, place_id, place)
+    return db_place
 
 
 @router.delete(
@@ -117,17 +85,10 @@ def delete_place_endpoint(
     place_id: int,
     db: Session = Depends(get_db)
 ):
-    try:
-        db_place = delete_place(db, place_id)
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(
-            status_code=409,
-            detail="Place cannot be deleted because other records depend on it"
-        )
+    db_place = place_service.delete_place(db, place_id)
 
     if db_place is None:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Place not found"
         )
