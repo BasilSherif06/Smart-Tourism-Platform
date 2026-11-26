@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import Optional
 
 from sqlalchemy import Numeric, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database.base import Base
 
@@ -16,3 +16,9 @@ class City(Base):
     latitude: Mapped[float]
     longitude: Mapped[float]
     minimum_budget: Mapped[Optional[Decimal]] = mapped_column(Numeric(12, 2))  # EGP
+
+    places: Mapped[list["Place"]] = relationship(
+        back_populates="city"
+    )
+
+    trips: Mapped[list["Trip"]] = relationship(back_populates="city")

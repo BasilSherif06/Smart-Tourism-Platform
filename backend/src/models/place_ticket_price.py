@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import DateTime, ForeignKey, Numeric, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database.base import Base
 
@@ -27,4 +27,8 @@ class PlaceTicketPrice(Base):
     last_verified_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True)
     )
-    
+
+
+    place: Mapped["Place"] = relationship(
+        back_populates="ticket_prices"
+    )
