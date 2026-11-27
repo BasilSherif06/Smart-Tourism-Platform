@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
-from sqlalchemy import DateTime, String, func
+from sqlalchemy import Date, DateTime, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.database.base import Base
@@ -13,7 +13,7 @@ class User(Base):
     user_id: Mapped[int] = mapped_column(primary_key=True)
     full_name: Mapped[str] = mapped_column(String(100))
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
-    age: Mapped[Optional[int]]
+    date_of_birth: Mapped[date] = mapped_column(Date)
     nationality: Mapped[Optional[str]] = mapped_column(String(100))
     password_hash: Mapped[str] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(

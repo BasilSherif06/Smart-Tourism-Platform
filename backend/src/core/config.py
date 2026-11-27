@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASSWORD: str
 
+    # Security
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
     # Application Configuration
     APP_NAME: str = "Smart Tourism Platform"
     APP_ENV: str = "development"
